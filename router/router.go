@@ -21,7 +21,7 @@ func NewRouter(userController *controller.UserController, tagController *control
 	tagRouter := router.Group("/tag")
 	userRouter := router.Group("/user")
 	// user
-	userRouter.POST("", userController.Create)
+	userRouter.POST("/sign-up", userController.SignUp)
 	userRouter.GET("/:id", userController.FindById)
 	userRouter.PATCH("/:id", userController.Update)
 

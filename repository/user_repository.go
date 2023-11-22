@@ -7,7 +7,7 @@ import (
 )
 
 type UserRepository interface {
-	Create(user model.Users)
+	Create(user model.Users) model.Users
 	Update(user model.Users)
 	FindById(userId uuid.UUID) (model.Users, error)
 }

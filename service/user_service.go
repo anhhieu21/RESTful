@@ -8,7 +8,7 @@ import (
 )
 
 type UserService interface {
-	Create(user req.UserRequest)
+	Create(user req.UserRequest) model.Users
 	Update(user req.UserUpdateRequest)
 	FindById(userId uuid.UUID) model.Users
 }

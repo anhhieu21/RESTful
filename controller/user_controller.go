@@ -4,8 +4,12 @@ import (
 	"main/data/req"
 	"main/data/res"
 	"main/helper"
+	"main/model"
 	"main/service"
+	"main/utils"
 	"net/http"
+	"strings"
+	"github.com/dgrijalva/jwt-go"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -21,17 +25,35 @@ func NewUserController(userService service.UserService) *UserController {
 	}
 }
 
-func (u *UserController) Create(ctx *gin.Context) {
+func (u *UserController) FindMe(ctx *gin.Context) {
+	authorizationHeader := ctx.GetHeader("Authorization")
+	if authorizationHeader == "" {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		ctx.Abort()
+		return
+	}
+	tokenString := strings.Split(authorizationHeader, " ")[1]
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(utils.SECRET_KEY), nil
+	}).(*jwt.Token)
+	if err != nil || !token.Valid {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		ctx.Abort()
+		return
+	}
+	claims := token.Claims.(*model.JwtCustomClaims)
+}
+
+func (u *UserController) SignUp(ctx *gin.Context) {
 	createUserRequets := req.UserRequest{}
 	err := ctx.ShouldBindJSON(&createUserRequets)
 	helper.ErrorPanic(err)
-	u.userService.Create(createUserRequets)
-	webResponse := res.Response{
-		Code:   200,
-		Status: "Ok",
-		Data:   nil,
-	}
-	ctx.JSON(http.StatusOK, webResponse)
+	user := u.userService.Create(createUserRequets)
+	//GenToken
+	token, err := utils.GenToken(user)
+	helper.ErrorPanic(err)
+
+	ctx.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 func (u *UserController) Update(ctx *gin.Context) {

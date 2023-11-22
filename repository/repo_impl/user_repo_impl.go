@@ -20,9 +20,14 @@ func NewUserRepositoryImpl(Db *gorm.DB) repository.UserRepository {
 }
 
 // Create implements repository.UserRepository.
-func (u *UserRepositoryImpl) Create(user model.Users) {
+func (u *UserRepositoryImpl) Create(user model.Users) model.Users{
+	var data model.Users
 	result := u.Db.Create(&user)
 	helper.ErrorPanic(result.Error)
+
+	u.Db.Find(&data, user.Id)
+
+	return data
 }
 
 // FindById implements repository.UserRepository.

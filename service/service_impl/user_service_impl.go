@@ -18,7 +18,7 @@ type UserServiceImpl struct {
 }
 
 // Create implements service.UserService.
-func (u *UserServiceImpl) Create(user req.UserRequest) {
+func (u *UserServiceImpl) Create(user req.UserRequest) model.Users {
 	id := uuid.New()
 	hash := utils.HashPassword([]byte(user.Password))
 	userModel := model.Users{
@@ -29,6 +29,8 @@ func (u *UserServiceImpl) Create(user req.UserRequest) {
 		Phone:    user.Phone,
 	}
 	u.UserRepository.Create(userModel)
+
+	return userModel
 }
 
 // FindById implements service.UserService.
